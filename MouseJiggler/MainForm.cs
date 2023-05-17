@@ -22,13 +22,13 @@ namespace ArkaneSystems.MouseJiggler
         /// <summary>
         ///     Constructor for use by the form designer.
         /// </summary>
-        public MainForm ()
-            : this (jiggleOnStartup: false, minimizeOnStartup: false, zenJiggleEnabled: false, jigglePeriod: 1)
+        public MainForm()
+            : this(jiggleOnStartup: false, minimizeOnStartup: false, zenJiggleEnabled: false, jigglePeriod: 1)
         { }
 
-        public MainForm (bool jiggleOnStartup, bool minimizeOnStartup, bool zenJiggleEnabled, int jigglePeriod)
+        public MainForm(bool jiggleOnStartup, bool minimizeOnStartup, bool zenJiggleEnabled, int jigglePeriod)
         {
-            this.InitializeComponent ();
+            this.InitializeComponent();
 
             // Jiggling on startup?
             this.JiggleOnStartup = jiggleOnStartup;
@@ -37,19 +37,20 @@ namespace ArkaneSystems.MouseJiggler
             // We do this by setting the controls, and letting them set the properties.
 
             this.cbMinimize.Checked = minimizeOnStartup;
-            this.cbZen.Checked      = zenJiggleEnabled;
-            this.tbPeriod.Value     = jigglePeriod;
+            this.cbZen.Checked = zenJiggleEnabled;
+            this.tbPeriod.Value = jigglePeriod;
+            this.cbClicking.Checked = false;
         }
 
         public bool JiggleOnStartup { get; }
 
-        private void MainForm_Load (object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
             if (this.JiggleOnStartup)
                 this.cbJiggling.Checked = true;
         }
 
-        private void UpdateNotificationAreaText ()
+        private void UpdateNotificationAreaText()
         {
             if (!this.cbJiggling.Checked)
             {
@@ -62,29 +63,29 @@ namespace ArkaneSystems.MouseJiggler
             }
         }
 
-        private void cmdAbout_Click (object sender, EventArgs e)
+        private void cmdAbout_Click(object sender, EventArgs e)
         {
-            new AboutBox ().ShowDialog (owner: this);
+            new AboutBox().ShowDialog(owner: this);
         }
 
         #region Property synchronization
 
-        private void cbSettings_CheckedChanged (object sender, EventArgs e)
+        private void cbSettings_CheckedChanged(object sender, EventArgs e)
         {
             this.panelSettings.Visible = this.cbSettings.Checked;
         }
 
-        private void cbMinimize_CheckedChanged (object sender, EventArgs e)
+        private void cbMinimize_CheckedChanged(object sender, EventArgs e)
         {
             this.MinimizeOnStartup = this.cbMinimize.Checked;
         }
 
-        private void cbZen_CheckedChanged (object sender, EventArgs e)
+        private void cbZen_CheckedChanged(object sender, EventArgs e)
         {
             this.ZenJiggleEnabled = this.cbZen.Checked;
         }
 
-        private void tbPeriod_ValueChanged (object sender, EventArgs e)
+        private void tbPeriod_ValueChanged(object sender, EventArgs e)
         {
             this.JigglePeriod = this.tbPeriod.Value;
         }
@@ -95,19 +96,37 @@ namespace ArkaneSystems.MouseJiggler
 
         protected bool Zig = true;
 
-        private void cbJiggling_CheckedChanged (object sender, EventArgs e)
+        private void cbJiggling_CheckedChanged(object sender, EventArgs e)
         {
             this.jiggleTimer.Enabled = this.cbJiggling.Checked;
         }
 
-        private void jiggleTimer_Tick (object sender, EventArgs e)
+        private void jiggleTimer_Tick(object sender, EventArgs e)
         {
             if (this.ZenJiggleEnabled)
-                Helpers.Jiggle (delta: 0);
+            {
+                Helpers.Jiggle(delta: 0);
+                if (this.cbClicking.Checked)
+                {
+                    Helpers.Click();
+                }
+            }
             else if (this.Zig)
-                Helpers.Jiggle (delta: 4);
+            {
+                Helpers.Jiggle(delta: 4);
+                if (this.cbClicking.Checked)
+                {
+                    Helpers.Click();
+                }
+            }
             else //zag
-                Helpers.Jiggle (delta: -4);
+            {
+                Helpers.Jiggle(delta: -4);
+                if (this.cbClicking.Checked)
+                {
+                    Helpers.Click();
+                }
+            } 
 
             this.Zig = !this.Zig;
         }
@@ -116,29 +135,29 @@ namespace ArkaneSystems.MouseJiggler
 
         #region Minimize and restore
 
-        private void cmdTrayify_Click (object sender, EventArgs e)
+        private void cmdTrayify_Click(object sender, EventArgs e)
         {
-            this.MinimizeToTray ();
+            this.MinimizeToTray();
         }
 
-        private void niTray_DoubleClick (object sender, EventArgs e)
+        private void niTray_DoubleClick(object sender, EventArgs e)
         {
-            this.RestoreFromTray ();
+            this.RestoreFromTray();
         }
 
-        private void MinimizeToTray ()
+        private void MinimizeToTray()
         {
-            this.Visible        = false;
-            this.ShowInTaskbar  = false;
+            this.Visible = false;
+            this.ShowInTaskbar = false;
             this.niTray.Visible = true;
 
-            this.UpdateNotificationAreaText ();
+            this.UpdateNotificationAreaText();
         }
 
-        private void RestoreFromTray ()
+        private void RestoreFromTray()
         {
-            this.Visible        = true;
-            this.ShowInTaskbar  = true;
+            this.Visible = true;
+            this.ShowInTaskbar = true;
             this.niTray.Visible = false;
         }
 
@@ -161,9 +180,9 @@ namespace ArkaneSystems.MouseJiggler
             get => this.minimizeOnStartup;
             set
             {
-                this.minimizeOnStartup             = value;
+                this.minimizeOnStartup = value;
                 Settings.Default.MinimizeOnStartup = value;
-                Settings.Default.Save ();
+                Settings.Default.Save();
             }
         }
 
@@ -172,9 +191,9 @@ namespace ArkaneSystems.MouseJiggler
             get => this.zenJiggleEnabled;
             set
             {
-                this.zenJiggleEnabled      = value;
+                this.zenJiggleEnabled = value;
                 Settings.Default.ZenJiggle = value;
-                Settings.Default.Save ();
+                Settings.Default.Save();
             }
         }
 
@@ -183,12 +202,12 @@ namespace ArkaneSystems.MouseJiggler
             get => this.jigglePeriod;
             set
             {
-                this.jigglePeriod             = value;
+                this.jigglePeriod = value;
                 Settings.Default.JigglePeriod = value;
-                Settings.Default.Save ();
+                Settings.Default.Save();
 
                 this.jiggleTimer.Interval = value * 1000;
-                this.lbPeriod.Text        = $"{value} s";
+                this.lbPeriod.Text = $"{value} s";
             }
         }
 
@@ -198,14 +217,15 @@ namespace ArkaneSystems.MouseJiggler
 
         private bool firstShown = true;
 
-        private void MainForm_Shown (object sender, EventArgs e)
+        private void MainForm_Shown(object sender, EventArgs e)
         {
             if (this.firstShown && this.MinimizeOnStartup)
-                this.MinimizeToTray ();
+                this.MinimizeToTray();
 
             this.firstShown = false;
         }
 
         #endregion
+
     }
 }

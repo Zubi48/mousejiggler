@@ -68,5 +68,57 @@ namespace ArkaneSystems.MouseJiggler
         }
 
         #endregion Jiggling
+
+        #region Clicking
+
+        /// <summary>
+        ///     Fake left click
+        /// </summary>
+    
+        internal static void Click()
+        {
+            var clickInputs = new User32.INPUT[2];
+
+            // First input: Mouse left button down
+            clickInputs[0] = new User32.INPUT
+            {
+                type = User32.InputType.INPUT_MOUSE,
+                Inputs = new User32.INPUT.InputUnion
+                {
+                    mi = new User32.MOUSEINPUT
+                    {
+                        dwFlags = User32.MOUSEEVENTF.MOUSEEVENTF_LEFTDOWN
+                    }
+                }
+            };
+
+            // Second input: Mouse left button up
+            clickInputs[1] = new User32.INPUT
+            {
+                type = User32.InputType.INPUT_MOUSE,
+                Inputs = new User32.INPUT.InputUnion
+                {
+                    mi = new User32.MOUSEINPUT
+                    {
+                        dwFlags = User32.MOUSEEVENTF.MOUSEEVENTF_LEFTUP
+                    }
+                }
+            };
+
+            // Send the mouse click inputs
+            uint returnValue = User32.SendInput(clickInputs.Length, clickInputs, Marshal.SizeOf<User32.INPUT>());
+
+            if (returnValue != 1)
+            {
+                int errorCode = Marshal.GetLastWin32Error();
+
+                Debugger.Log(level: 1,
+                              category: "Jiggle",
+                              message:
+                              $"failed to insert event to input stream; retval={returnValue}, errcode=0x{errorCode:x8}\n");
+            }
+        }
+
+        #endregion Jiggling
     }
 }
